@@ -13,15 +13,14 @@ npm run lint      # Run ESLint
 
 ## Architecture
 
-React + Vite single-page app — a finance tracker built as a starter project for a Claude Code course (intentionally imperfect, with known bugs).
+React + Vite single-page app — a finance tracker built as a starter project for a Claude Code course. No routing, no external state management, no backend — all data is in-memory.
 
-All application logic lives in `src/App.jsx` using React hooks (`useState`). There is no routing, no external state management, and no backend — all data is in-memory with hardcoded sample transactions.
+**Component tree:**
+- `App` — holds the `transactions` array (`{ id, date, description, amount, type, category }`) and passes it down
+  - `Summary` — computes and displays total income, total expenses, and balance from `transactions`
+  - `TransactionForm` — owns its own form state; calls `onAdd(transaction)` prop when submitted
+  - `TransactionList` — owns its own filter state (`filterType`, `filterCategory`); renders the filtered table
 
-**State managed in App.jsx:**
-- `transactions` — array of `{ id, date, description, amount, type, category }`
-- Form inputs: `description`, `amount`, `type`, `category`
-- Filters: `filterType`, `filterCategory`
+`categories` is a static constant defined locally in both `TransactionForm` and `TransactionList`: food, housing, utilities, transport, entertainment, salary, other.
 
-**Categories:** food, housing, utilities, transport, entertainment, salary, other
-
-The summary dashboard computes balance, total income, and total expenses from the filtered transaction list. Amounts are color-coded: green for income, red for expenses.
+Amounts are color-coded: green for income, red for expenses.
