@@ -2,9 +2,10 @@ import { useState } from 'react'
 
 const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
-function TransactionList({ transactions }) {
+function TransactionList({ transactions, onDelete }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [confirmId, setConfirmId] = useState(null);
 
   let filtered = transactions;
   if (filterType !== "all") {
@@ -14,8 +15,24 @@ function TransactionList({ transactions }) {
     filtered = filtered.filter(t => t.category === filterCategory);
   }
 
+  const handleConfirmDelete = () => {
+    onDelete(confirmId);
+    setConfirmId(null);
+  };
+
   return (
     <div className="transactions">
+      {confirmId !== null && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <p>Are you sure you want to delete this transaction?</p>
+            <div className="modal-actions">
+              <button className="modal-confirm" onClick={handleConfirmDelete}>Delete</button>
+              <button className="modal-cancel" onClick={() => setConfirmId(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       <h2>Transactions</h2>
       <div className="filters">
         <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
@@ -38,6 +55,7 @@ function TransactionList({ transactions }) {
             <th>Description</th>
             <th>Category</th>
             <th>Amount</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +66,9 @@ function TransactionList({ transactions }) {
               <td>{t.category}</td>
               <td className={t.type === "income" ? "income-amount" : "expense-amount"}>
                 {t.type === "income" ? "+" : "-"}${t.amount}
+              </td>
+              <td>
+                <button className="delete-btn" onClick={() => setConfirmId(t.id)}>Delete</button>
               </td>
             </tr>
           ))}
