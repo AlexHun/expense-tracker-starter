@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\GAP\\\\Documents\\\\claude-code-course\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
