@@ -1,13 +1,13 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const COLORS = {
-  food: '#ff6b6b',
-  housing: '#4ecdc4',
-  utilities: '#ffa94d',
-  transport: '#845ef7',
-  entertainment: '#ff8cc6',
-  salary: '#51cf66',
-  other: '#868e96',
+  food: '#ff7a5c',
+  housing: '#5cc2ff',
+  utilities: '#ffb547',
+  transport: '#b48aff',
+  entertainment: '#ff6aa6',
+  salary: '#c5f04a',
+  other: '#7a8a82',
 };
 
 function SpendingChart({ transactions }) {
@@ -18,24 +18,36 @@ function SpendingChart({ transactions }) {
       return acc;
     }, {});
 
-  const data = Object.entries(totals).map(([category, value]) => ({
-    name: category,
-    value,
-  }));
+  const data = Object.entries(totals)
+    .map(([category, value]) => ({ name: category, value }))
+    .sort((a, b) => b.value - a.value);
 
   return (
     <div className="chart-card">
-      <h2>Spending by Category</h2>
       {data.length === 0 ? (
-        <p className="chart-empty">No expenses to display.</p>
+        <p className="chart-empty">// no expenses recorded</p>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis tickFormatter={(value) => `$${value}`} />
-            <Tooltip formatter={(value) => `$${value}`} />
-            <Bar dataKey="value">
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data} margin={{ top: 16, right: 16, left: 8, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="2 4" vertical={false} />
+            <XAxis
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={12}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tickMargin={8}
+              tickFormatter={(v) => `$${v}`}
+              width={50}
+            />
+            <Tooltip
+              cursor={{ fill: 'rgba(197, 240, 74, 0.06)' }}
+              formatter={(value) => [`$${Number(value).toFixed(2)}`, '']}
+            />
+            <Bar dataKey="value" maxBarSize={56} radius={[2, 2, 0, 0]}>
               {data.map(entry => (
                 <Cell key={entry.name} fill={COLORS[entry.name] || COLORS.other} />
               ))}
