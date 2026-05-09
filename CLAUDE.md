@@ -16,15 +16,16 @@ npm run lint      # Run ESLint
 React + Vite single-page app — a finance tracker built as a starter project for a Claude Code course. No routing, no external state management, no backend — all data is in-memory.
 
 **Component tree:**
-- `App` — holds the `transactions` array (`{ id, date, description, amount, type, category }`); renders the topbar, hero, sections, and footer
-  - `Summary` — three-cell hero: Net Balance (with `▲/▼ %` retention pill), Income · 30D, Expenses · 30D
+- `App` — holds the `transactions` array (`{ id, date, description, amount, type, category }`) and the `toasts` queue; renders the topbar, hero, sections, `Toaster`, and footer. `handleAdd`/`handleDelete` fire `notify(tone, message)` so every mutation surfaces a toast.
+  - `Summary` — three-cell hero: Net Balance · 30D (with `▲/▼ %` retention pill), Income · 30D, Expenses · 30D. Single-pass aggregation with a 30-day cutoff.
   - `SpendingChart` — recharts `BarChart` of expenses summed and sorted by category
-  - `TransactionForm` — owns its own form state; calls `onAdd(transaction)` prop when submitted
-  - `TransactionList` — owns its own filter state (`filterType`, `filterCategory`); renders the filtered table with a confirm-delete modal
+  - `TransactionForm` — owns its own form state plus an `errors` map; rejects empty descriptions and non-positive amounts, surfacing a contextual `// …` error strip. `noValidate` on the form so our messaging wins over the browser's.
+  - `TransactionList` — owns its own filter state (`filterType`, `filterCategory`); renders the filtered table with a confirm-delete modal. Modal is a real `role="dialog"` with `aria-modal`, autofocuses Cancel, and closes on `Escape`.
+  - `Toaster` / `Toast` — fixed-position `aria-live="polite"` stack. Each toast auto-dismisses after 3s; tone (`pos`/`neg`) drives lime vs. coral tinting.
 
-`categories` is a static constant duplicated in `TransactionForm` and `TransactionList`: food, housing, utilities, transport, entertainment, salary, other.
-
-`CAT_COLORS` (per-category swatch / bar fill) is duplicated in `SpendingChart.jsx` and `TransactionList.jsx` — keep them in sync.
+Shared constants live in `src/constants.js`:
+- `categories` — food, housing, utilities, transport, entertainment, salary, other
+- `CAT_COLORS` — per-category swatch / bar fill, consumed by `SpendingChart`, `TransactionList`, and anywhere else a category needs a color
 
 ## Design system
 
@@ -41,7 +42,10 @@ Tabular numerals (`font-feature-settings: "tnum"`) are used wherever money or co
 
 Amounts are color-coded: lime (`--pos`) for income, coral (`--neg`) for expenses.
 
+Form fields use `<span class="select-wrapper">` to host a CSS-mask chevron via `::after`; the chevron rotates 180° and tints to `--accent` on `:focus-within`. Invalid inputs get an `.error` class (coral inset shadow + tinted bg); the contextual error message renders below the form as `<p class="form-error" role="alert">`.
+
 ## Skills
 
 - `.claude/skills/deploy/` — project-local deploy skill (runs `npm test` → `npm run build` → `npm run deploy:staging`). Note: `test` and `deploy:staging` scripts are not yet defined in `package.json`; the skill prompts before skipping tests.
+- `.claude/skills/frontend-design/` — project-local copy of the frontend-design skill.
 - `.agents/skills/frontend-design/` — vendored copy of the frontend-design skill, hash-pinned via `skills-lock.json`.
