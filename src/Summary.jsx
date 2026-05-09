@@ -16,13 +16,26 @@ function HeroAmount({ value, tone = "neutral" }) {
 }
 
 function Summary({ transactions }) {
-  const totalIncome = transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - 30);
 
-  const totalExpenses = transactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  let totalIncome = 0;
+  let totalExpenses = 0;
+  let incomeCount = 0;
+  let expenseCount = 0;
+
+  for (const t of transactions) {
+    if (new Date(t.date) < cutoff) continue;
+    const amount = parseFloat(t.amount);
+    if (t.type === "income") {
+      totalIncome += amount;
+      incomeCount += 1;
+    } else if (t.type === "expense") {
+      totalExpenses += amount;
+      expenseCount += 1;
+    }
+  }
 
   const balance = totalIncome - totalExpenses;
   const ratio = totalIncome > 0 ? ((balance / totalIncome) * 100).toFixed(1) : "0.0";
@@ -31,7 +44,7 @@ function Summary({ transactions }) {
   return (
     <section className="hero">
       <div className="hero-cell primary">
-        <div className="hero-label">Net Balance</div>
+        <div className="hero-label">Net Balance · 30D</div>
         <HeroAmount value={balance} tone={balanceTone} />
         <div className="hero-meta">
           <span className={`hero-pill ${balance < 0 ? 'neg' : ''}`}>
@@ -43,12 +56,12 @@ function Summary({ transactions }) {
       <div className="hero-cell">
         <div className="hero-label">Income · 30D</div>
         <HeroAmount value={totalIncome} tone="pos" />
-        <div className="hero-meta">{transactions.filter(t => t.type === "income").length} entries</div>
+        <div className="hero-meta">{incomeCount} entries</div>
       </div>
       <div className="hero-cell">
         <div className="hero-label">Expenses · 30D</div>
         <HeroAmount value={totalExpenses} tone="neg" />
-        <div className="hero-meta">{transactions.filter(t => t.type === "expense").length} entries</div>
+        <div className="hero-meta">{expenseCount} entries</div>
       </div>
     </section>
   );

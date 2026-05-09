@@ -1,14 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-
-const COLORS = {
-  food: '#ff7a5c',
-  housing: '#5cc2ff',
-  utilities: '#ffb547',
-  transport: '#b48aff',
-  entertainment: '#ff6aa6',
-  salary: '#c5f04a',
-  other: '#7a8a82',
-};
+import { CAT_COLORS } from './constants';
 
 function SpendingChart({ transactions }) {
   const totals = transactions
@@ -49,7 +40,7 @@ function SpendingChart({ transactions }) {
             />
             <Bar dataKey="value" maxBarSize={56} radius={[2, 2, 0, 0]}>
               {data.map(entry => (
-                <Cell key={entry.name} fill={COLORS[entry.name] || COLORS.other} />
+                <Cell key={entry.name} fill={CAT_COLORS[entry.name] || CAT_COLORS.other} />
               ))}
             </Bar>
           </BarChart>

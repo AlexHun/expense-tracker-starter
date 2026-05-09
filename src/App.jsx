@@ -1,24 +1,43 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import './App.css'
 import Summary from './Summary'
 import SpendingChart from './SpendingChart'
 import TransactionForm from './TransactionForm'
 import TransactionList from './TransactionList'
+import Toaster from './Toast'
 
 function App() {
   const [transactions, setTransactions] = useState([
-    { id: 1, description: "Salary", amount: 5000, type: "income", category: "salary", date: "2025-01-01" },
-    { id: 2, description: "Rent", amount: 1200, type: "expense", category: "housing", date: "2025-01-02" },
-    { id: 3, description: "Groceries", amount: 150, type: "expense", category: "food", date: "2025-01-03" },
-    { id: 4, description: "Freelance Work", amount: 800, type: "expense", category: "salary", date: "2025-01-05" },
-    { id: 5, description: "Electric Bill", amount: 95, type: "expense", category: "utilities", date: "2025-01-06" },
-    { id: 6, description: "Dinner Out", amount: 65, type: "expense", category: "food", date: "2025-01-07" },
-    { id: 7, description: "Gas", amount: 45, type: "expense", category: "transport", date: "2025-01-08" },
-    { id: 8, description: "Netflix", amount: 15, type: "expense", category: "entertainment", date: "2025-01-10" },
+    { id: 1, description: "Salary", amount: 5000, type: "income", category: "salary", date: "2026-04-15" },
+    { id: 2, description: "Rent", amount: 1200, type: "expense", category: "housing", date: "2026-04-16" },
+    { id: 3, description: "Groceries", amount: 150, type: "expense", category: "food", date: "2026-04-22" },
+    { id: 4, description: "Freelance Work", amount: 800, type: "income", category: "salary", date: "2026-04-25" },
+    { id: 5, description: "Electric Bill", amount: 95, type: "expense", category: "utilities", date: "2026-04-28" },
+    { id: 6, description: "Dinner Out", amount: 65, type: "expense", category: "food", date: "2026-05-02" },
+    { id: 7, description: "Gas", amount: 45, type: "expense", category: "transport", date: "2026-05-05" },
+    { id: 8, description: "Netflix", amount: 15, type: "expense", category: "entertainment", date: "2026-05-08" },
   ]);
 
-  const handleAdd = (t) => setTransactions([...transactions, t]);
-  const handleDelete = (id) => setTransactions(transactions.filter(t => t.id !== id));
+  const [toasts, setToasts] = useState([]);
+
+  const notify = useCallback((tone, message) => {
+    setToasts(prev => [...prev, { id: Date.now() + Math.random(), tone, message }]);
+  }, []);
+
+  const dismissToast = useCallback((id) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const handleAdd = (t) => {
+    setTransactions(prev => [...prev, t]);
+    notify('pos', `Recorded "${t.description}"`);
+  };
+
+  const handleDelete = (id) => {
+    const target = transactions.find(t => t.id === id);
+    setTransactions(prev => prev.filter(t => t.id !== id));
+    if (target) notify('neg', `Removed "${target.description}"`);
+  };
 
   const lastEntry = transactions[transactions.length - 1];
   const lastEntryLabel = lastEntry ? lastEntry.date : '—';
@@ -68,6 +87,8 @@ function App() {
         </div>
         <TransactionList transactions={transactions} onDelete={handleDelete} />
       </section>
+
+      <Toaster toasts={toasts} onDismiss={dismissToast} />
 
       <footer className="footer">
         <span>// build {new Date().getFullYear()}.01</span>
